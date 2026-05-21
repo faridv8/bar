@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Pedidos Final</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        .phone-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: 390px;
+            max-height: 844px;
+            background-color: #000000;
+            border-radius: 0px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .view {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            position: relative;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .view.active {
+            display: flex;
+        }
+
+/* --- ENCABEZADO "LA TABERNA DEL TURCO FARID" --- */
+        .brand-header {
+            position: absolute;
+            top: calc(10px + env(safe-area-inset-top));
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 30;
+            padding: 5px 10px 0 10px;
+            pointer-events: none;
+        }
+
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0px 2px 4px rgba(255, 159, 67, 0.4));
+        }
+
+        .brand-title {
+            font-family: 'El Messiri', serif;
+            font-size: 19px;
+            color: #ff9f43;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 0 10px rgba(255, 159, 67, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+/* --- PANTALLA PRINCIPAL: BARRA EN UN SOLO RENGLÓN DESLIZABLE --- */
+        .top-navbar {
+            position: absolute;
+            top: calc(82px + env(safe-area-inset-top));
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            gap: 8px;
+            padding: 10px 15px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.95), rgba(0,0,0,0));
+            z-index: 25;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Ocultar barra de scroll visual para estética premium */
+        .top-navbar::-webkit-scrollbar {
+            display: none;
+        }
+        .top-navbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .nav-tab {
+            flex: 0 0 auto; /* Evita que los botones se achiquen o colapsen */
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.7);
+            padding: 6px 14px; /* Más padding horizontal para que parezcan pestañas de apps nativas */
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 14px;
+            text-align: center;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 32px;
+            line-height: 1.1;
+        }
+
+        .nav-tab.active {
+            background: #ff9f43;
+            color: #121212;
+            border-color: #ff9f43;
+            box-shadow: 0 2px 10px rgba(255, 159, 67, 0.5);
+        }
+
+        .app-main {
+            flex: 1;
+            position: relative;
+            cursor: grab;
+            overflow: hidden;
+            background-color: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .product-image-container {
+            width: 352px; 
+            height: 275px; 
+            position: absolute;
+            top: 44%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+            pointer-events: none;
+        }
+
+        .background-image {
+            width: 100%;
+            height: 100%;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background-image 0.25s ease-in-out;
+            mix-blend-mode: color-dodge; 
+            image-rendering: -webkit-optimize-contrast;
+            filter: contrast(1.1) brightness(1.05);
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.9) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .product-info-panel {
+            position: absolute;
+            bottom: calc(115px + env(safe-area-inset-bottom));
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .product-title {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 4px;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+            pointer-events: auto;
+            text-align: center;
+        }
+
+        .product-price {
+            font-size: 22px;
+            color: #ff9f43;
+            font-weight: 700;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+            margin-bottom: 12px;
+            pointer-events: auto;
+            text-align: center;
+        }
+
+        .product-description {
+            font-size: 13px;
+            color: #e5e5e5;
+            line-height: 1.45;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+            background: rgba(25,25,25,0.85);
+            padding: 14px;
+            border-radius: 16px;
+            pointer-events: auto;
+            border: 1px solid rgba(255,255,255,0.06);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .app-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 20px calc(35px + env(safe-area-inset-bottom)) 20px;
+            z-index: 25;
+            background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
+        }
+
+        .btn-confirm {
+            width: 100%;
+            background-color: #ff9f43;
+            color: #121212;
+            border: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(255, 159, 67, 0.35);
+        }
+
+        /* --- PANTALLA CARRITO --- */
+        .cart-view {
+            background-color: #090909;
+            padding: calc(45px + env(safe-area-inset-top)) 20px calc(35px + env(safe-area-inset-bottom)) 20px;
+            z-index: 40;
+        }
+
+        .cart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #1a1a1a;
+            padding-bottom: 15px;
+        }
+
+        .btn-back {
+            background: none;
+            border: none;
+            color: #ff9f43;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .cart-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .cart-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .cart-item {
+            display: flex;
+            background: #141414;
+            padding: 12px;
+            border-radius: 16px;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #202020;
+        }
+
+        .cart-item-img-container {
+            width: 72px;  
+            height: 55px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+        }
+
+        .cart-item-img {
+            width: 100%;
+            height: 100%;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            mix-blend-mode: color-dodge;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 3px;
+            color: #fff;
+        }
+
+        .cart-item-price {
+            font-size: 13px;
+            color: #ff9f43;
+            font-weight: 600;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #2d2d2d;
+        }
+
+        .btn-qty {
+            background: none;
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-minus { color: #ff6b6b; }
+        .btn-plus { color: #1dd1a1; }
+
+        .qty-val {
+            width: 25px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .cart-empty-msg {
+            text-align: center;
+            color: #666;
+            margin-top: 120px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .cart-summary {
+            margin-top: 20px;
+            border-top: 1px solid #1a1a1a;
+            padding-top: 15px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+
+        .btn-checkout {
+            width: 100%;
+            background-color: #1dd1a1;
+            color: #121212;
+            border: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(29, 209, 161, 0.3);
+        }
+
+        .click-pop {
+            position: absolute;
+            background-color: #ff9f43;
+            color: #121212;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            pointer-events: none;
+            z-index: 50;
+            animation: floatUp 0.6s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -80%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -150%) scale(0.9); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-container">
+        <div id="homeView" class="view active">
+            <div class="brand-header">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24" fill="#ff9f43" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2,15 C4,13 7,12 10,13 C12,13.4 13.5,14.8 15,14 C17,13 18,10 16,8 C14,6 10,7 9,9 C8.5,10 7.5,10 7,9.5 C6.5,9 6.5,8 7,7.5 C9,5 14,4 18,6 C22,8 23,12 20,15 C18,17 15,17 12,16.5 C9,16 5,17 3,19 C2.5,19.5 1.5,19.5 1,18.5 C0.7,17.5 1.3,15.8 2,15 Z M17,5 C17,3.5 18,3 19,3 C20,3 21,3.5 21,5 C21,6.5 20,7 19,7 C18,7 17,6.5 17,5 Z"/>
+                    </svg>
+                </div>
+                <div class="brand-title">La Taberna del Turco Farid</div>
+            </div>
+
+            <div class="top-navbar" id="topNavbar"></div>
+            <div class="app-main" id="appMain">
+                <div class="overlay"></div>
+                <div class="product-image-container">
+                    <div class="background-image" id="bgImg"></div>
+                </div>
+                <div class="product-info-panel">
+                    <div class="product-title" id="pTitle">Cargando...</div>
+                    <div class="product-price" id="pPrice">$0</div>
+                    <div class="product-description" id="pDesc">Descripción...</div>
+                </div>
+            </div>
+            <div class="app-footer">
+                <button class="btn-confirm" id="btnConfirm">
+                    <span>CONFIRMAR PEDIDO</span>
+                    <span class="cart-badge" id="cartCount">0 Items</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="cartView" class="view cart-view">
+            <div class="cart-header">
+                <button class="btn-back" id="btnBack">← Volver</button>
+                <div class="cart-title">Mi Carrito</div>
+                <div style="width: 50px;"></div>
+            </div>
+            <div class="cart-list" id="cartList"></div>
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Total:</span>
+                    <span id="cartTotalText">$0</span>
+                </div>
+                <button class="btn-checkout" id="btnWhatsApp">Enviar Pedido por WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+        const productos = [
+            { id: 0, nombre: "Sfiha", precio: 1500, detalle: "Tradicional empanada árabe abierta de forma triangular, rellena de carne finamente sazonada con limón, cebolla y especias orientales.", img: "sfiha.JPG" },
+            { id: 1, nombre: "Kebab", precio: 4500, detalle: "Brocheta de carne picada sazonada con hierbas y especias, cocinada a la perfección. Una delicia jugosa y llena de sabor.", img: "kebab.JPG" },
+            { id: 2, nombre: "Salsas", precio: 800, detalle: "Variedad de salsas artesanales para acompañar tus platos. Labne (yogurt), Humus (garbanzos), Tum (ajo tipo aioli), Batinyal (berenjenas), Muhammara (pimientos).", img: "salsas.JPG" },
+            { id: 3, nombre: "Biryani", precio: 5200, detalle: "Clásico plato de arroz aromático cocinado con especias exóticas, hierbas frescas y carne tierna llena de matices.", img: "biryani.JPG" },
+            { id: 4, nombre: "Kafta", precio: 3800, detalle: "Preparación de carne picada estilo oriental mezclada con cebolla, perejil y nuestra selección especial de condimentos.", img: "kafta.png" },
+            { id: 5, nombre: "Bastoncitos de muzzarella", precio: 3200, detalle: "Crujientes por fuera y rellenos de queso muzzarella derretido. Ideales para arrancar o acompañar.", img: "bastoncitos.png" },
+            { id: 6, nombre: "Kibbe", precio: 1800, detalle: "Tradicional bocado de trigo burgol relleno de carne finamente sazonada con especias de Oriente Medio.", img: "kibbe.png" },
+            { id: 7, nombre: "Sfihas x6", precio: 8500, detalle: "Pack de 6 empanadas árabes abiertas tradicionales. Ideales para compartir.", img: "sfihax6.png" },
+            { id: 8, nombre: "Sfihas x12", precio: 16000, detalle: "Docena completa de nuestras sfihas tradicionales calientes, listas para disfrutar a lo grande.", img: "sfihax12.png" },
+            { id: 9, nombre: "Pan árabe x6 unidades", precio: 2000, detalle: "Pack de 6 unidades de pan árabe tradicional, tierno y aireado. Ideal para acompañar hummus, salsas o armar tus propios wraps.", img: "pan.jpeg" },
+            { id: 10, nombre: "Arroz con kebab", precio: 5500, detalle: "Exquisita base de arroz aromático de grano largo, coronada con sabrosos kebabs asados, almendras tostadas y un toque de menta fresca.", img: "arrozkebab.jpeg" },
+            { id: 11, nombre: "Mansaf", precio: 6800, detalle: "Tradicional plato elaborado con tiernos trozos de carne servidos sobre una cama de arroz y pan plano, bañados en una rica y cremosa salsa de yogur especiada.", img: "mansaf.jpeg" },
+            { id: 12, nombre: "Bowl de burgol", precio: 3500, detalle: "Nutritivo plato a base de trigo burgol perfectamente cocido, sazonado con hierbas finas y decorado con almendras crujientes.", img: "burgol.jpg" },
+            { id: 13, nombre: "Bowl de burgol jardinera", precio: 3900, detalle: "Colorida y fresca combinación de trigo burgol salteado con vegetales de la huerta picados en dados, ideal para una opción liviana y sabrosa.", img: "burgolverdu.jpeg" }
+        ];
+
+        let indexActual = 0;
+        const carrito = {};
+        productos.forEach(p => carrito[p.nombre] = 0);
+
+        const homeView = document.getElementById('homeView');
+        const cartView = document.getElementById('cartView');
+        const topNavbar = document.getElementById('topNavbar');
+        const appMain = document.getElementById('appMain');
+        const bgImg = document.getElementById('bgImg');
+        const pTitle = document.getElementById('pTitle');
+        const pPrice = document.getElementById('pPrice');
+        const pDesc = document.getElementById('pDesc');
+        const cartCount = document.getElementById('cartCount');
+        const cartList = document.getElementById('cartList');
+        const cartTotalText = document.getElementById('cartTotalText');
+
+        function renderTopNavbar() {
+            topNavbar.innerHTML = '';
+            productos.forEach((prod, i) => {
+                const tab = document.createElement('div');
+                tab.className = `nav-tab ${i === indexActual ? 'active' : ''}`;
+                tab.id = `tab-` + i;
+                tab.innerText = prod.nombre;
+                tab.onclick = (e) => {
+                    e.stopPropagation();
+                    cambiarProducto(i);
+                };
+                topNavbar.appendChild(tab);
+            });
+        }
+
+        function cambiarProducto(index) {
+            indexActual = index;
+            const prod = productos[indexActual];
+            bgImg.style.backgroundImage = `url('` + prod.img + `')`;
+            pTitle.innerText = prod.nombre;
+            pPrice.innerText = `$` + prod.precio.toLocaleString('es-AR');
+            pDesc.innerText = prod.detalle;
+
+            document.querySelectorAll('.nav-tab').forEach((tab, idx) => {
+                if (idx === indexActual) {
+                    tab.classList.add('active');
+                    // AUTO-CENTRAR AUTOMÁTICO AL HACER SWIPE O CLIC
+                    centrarBotonNavbar(tab);
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+        }
+
+        // Función matemática para centrar dinámicamente el botón activo en pantalla
+        function centrarBotonNavbar(boton) {
+            const navbarWidth = topNavbar.offsetWidth;
+            const botonLeft = boton.offsetLeft;
+            const botonWidth = boton.offsetWidth;
+            topNavbar.scrollLeft = botonLeft - (navbarWidth / 2) + (botonWidth / 2);
+        }
+
+        let startX = 0;
+        let isDragging = false;
+
+        appMain.addEventListener('mousedown', (e) => { startX = e.clientX; isDragging = false; });
+        appMain.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; isDragging = false; }, { passive: true });
+
+        appMain.addEventListener('mouseup', (e) => {
+            const diffX = e.clientX - startX;
+            if (Math.abs(diffX) > 60) {
+                isDragging = true;
+                if (diffX > 0) cambiarProducto(indexActual === 0 ? productos.length - 1 : indexActual - 1);
+                else cambiarProducto(indexActual === productos.length - 1 ? 0 : indexActual + 1);
+            }
+        });
+
+        appMain.addEventListener('touchend', (e) => {
+            const diffX = e.changedTouches[0].clientX - startX;
+            if (Math.abs(diffX) > 60) {
+                isDragging = true;
+                if (diffX > 0) cambiarProducto(indexActual === 0 ? productos.length - 1 : indexActual - 1);
+                else cambiarProducto(indexActual === productos.length - 1 ? 0 : indexActual + 1);
+            }
+        });
+
+        appMain.addEventListener('click', (e) => {
+            if (isDragging) return;
+            const prod = productos[indexActual];
+            carrito[prod.nombre]++;
+            actualizarBadgeTotal();
+
+            const rect = appMain.getBoundingClientRect();
+            const pop = document.createElement('div');
+            pop.className = 'click-pop';
+            pop.style.left = (e.clientX - rect.left) + 'px';
+            pop.style.top = (e.clientY - rect.top) + 'px';
+            pop.innerText = `+` + carrito[prod.nombre];
+            appMain.appendChild(pop);
+            setTimeout(() => pop.remove(), 600);
+        });
+
+        function actualizarBadgeTotal() {
+            let totalItems = 0;
+            Object.values(carrito).forEach(v => totalItems += v);
+            cartCount.innerText = totalItems + ` Items`;
+        }
+
+        document.getElementById('btnConfirm').onclick = () => {
+            homeView.classList.remove('active');
+            cartView.classList.add('active');
+            renderCarrito();
+        };
+
+        document.getElementById('btnBack').onclick = () => {
+            cartView.classList.remove('active');
+            homeView.classList.add('active');
+            actualizarBadgeTotal();
+            // Recentrar al volver a la pantalla principal
+            const tabActivo = document.getElementById(`tab-` + indexActual);
+            if(tabActivo) centrarBotonNavbar(tabActivo);
+        };
+
+        function renderCarrito() {
+            cartList.innerHTML = '';
+            let subtotal = 0;
+            let vacio = true;
+
+            productos.forEach(prod => {
+                const cant = carrito[prod.nombre];
+                if (cant > 0) {
+                    vacio = false;
+                    subtotal += prod.precio * cant;
+
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'cart-item';
+                    itemDiv.innerHTML = `
+                        <div class="cart-item-img-container">
+                            <div class="cart-item-img" style="background-image: url('` + prod.img + `')"></div>
+                        </div>
+                        <div class="cart-item-details">
+                            <div class="cart-item-name">` + prod.nombre + `</div>
+                            <div class="cart-item-price">$` + prod.precio.toLocaleString('es-AR') + `</div>
+                        </div>
+                        <div class="quantity-controls">
+                            <button class="btn-qty btn-minus" onclick="modificarCantidad('` + prod.nombre + `', -1)">-</button>
+                            <div class="qty-val">` + cant + `</div>
+                            <button class="btn-qty btn-plus" onclick="modificarCantidad('` + prod.nombre + `', 1)">+</button>
+                        </div>
+                    `;
+                    cartList.appendChild(itemDiv);
+                }
+            });
+
+            if (vacio) {
+                cartList.innerHTML = `<div class="cart-empty-msg">Tu carrito está vacío.<br>Toca la pantalla sobre el plato para sumar cantidad.</div>`;
+            }
+            cartTotalText.innerText = `$` + subtotal.toLocaleString('es-AR');
+        }
+
+        window.modificarCantidad = function(nombre, cambio) {
+            carrito[nombre] = Math.max(0, carrito[nombre] + cambio);
+            renderCarrito();
+        };
+
+        document.getElementById('btnWhatsApp').onclick = () => {
+            let texto = "¡Hola! Quisiera realizar el siguiente pedido:\n\n";
+            let total = 0;
+            let tieneItems = false;
+
+            productos.forEach(prod => {
+                const cant = carrito[prod.nombre];
+                if (cant > 0) {
+                    texto += `• ` + cant + `x ` + prod.nombre + ` ($` + (prod.precio * cant).toLocaleString('es-AR') + `)\n`;
+                    total += prod.precio * cant;
+                    tieneItems = true;
+                }
+            });
+
+            if (!tieneItems) {
+                alert("El carrito está vacío. Agregá algún artículo antes de enviar.");
+                return;
+            }
+
+            texto += `\n*Total a pagar: $` + total.toLocaleString('es-AR') + `*`;
+            const nroTelefono = "543425305927"; 
+            const urlWhatsApp = `https://wa.me/` + nroTelefono + `?text=` + encodeURIComponent(texto);
+            window.location.href = urlWhatsApp;
+        };
+
+        renderTopNavbar();
+        cambiarProducto(0);
+    </script>
+</body>
+</html>
